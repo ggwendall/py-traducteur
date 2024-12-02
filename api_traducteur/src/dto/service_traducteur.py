@@ -6,13 +6,17 @@ class Service_Traducteur(Connexion):
 
     @classmethod
     def sauvegarder_prompt(cls, prompt:Prompt):
-        cls.ouvrir_connexion()
-        query = "INSERT INTO Prompts (text_in, text_out, version, utilisateur) VALUES (%s, %s, %s, %s)"
-        values = [prompt.atraduire, prompt.traduction, prompt.version, prompt.utilisateur]
-        
-        cls.cursor.execute(query, values)
-        cls.bdd.commit()
-        cls.fermer_connexion()
+        try:
+            cls.ouvrir_connexion()
+            query = "INSERT INTO Prompts (text_in, text_out, version, utilisateur) VALUES (%s, %s, %s, %s)"
+            values = [prompt.atraduire, prompt.traduction, prompt.version, prompt.utilisateur]
+            
+            cls.cursor.execute(query, values)
+            cls.bdd.commit()
+        except Exception as e:
+            print(f"Une erreur inattendue est survenue :{e}")
+        finally:
+            cls.fermer_connexion()
     
     @classmethod
     def verifier_login(cls, utilisateur:Utilisateur):
@@ -49,7 +53,16 @@ class Service_Traducteur(Connexion):
         cls.fermer_connexion()
         
         return prompts
-                  
-                  
-
-
+    
+    @classmethod
+    def enregistrer_metric(cls, endpoint: str, method: str, duration: float, status_code: int):
+            try:
+                cls.ouvrir_connexion()
+                query = "INSERT INTO request_metrics (endpoint, method, duration, status_code) VALUES (%s, %s, %s, %s)"
+                values = [endpoint, method, duration, status_code]
+                cls.cursor.execute(query, values)
+                cls.bdd.commit()
+            except Exception as e:
+                print(f"Une erreur inattendue est survenue lors de l'enregistrement des métriques : {e}")
+            finally:
+                cls.fermer_connexion()

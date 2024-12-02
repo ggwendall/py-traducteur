@@ -1,7 +1,9 @@
 -- Adminer 4.8.1 MySQL 8.2.0 dump
 
 SET NAMES utf8;
-SET time_zone = '+00:00';
+
+SET GLOBAL time_zone = '+1:00';
+SET time_zone = '+1:00';
 SET foreign_key_checks = 0;
 SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
 
@@ -34,3 +36,12 @@ INSERT INTO `utilisateurs` (`id`, `login`, `mdp`) VALUES
 (2,	'Gilliam',	'Flying Circus');
 
 -- 2024-07-10 12:39:49
+
+CREATE TABLE request_metrics (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    endpoint VARCHAR(255) NOT NULL,
+    method VARCHAR(10) NOT NULL,
+    duration FLOAT NOT NULL,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    status_code INT NOT NULL
+);

@@ -1,0 +1,55 @@
+services:
+
+  db:
+    build:
+      context: ./bdd_traducteur
+      dockerfile: Dockerfile
+    container_name: db_trad
+    volumes:
+      - ./bdd:/var/lib/mysql
+    ports:
+      - "3307:3306"
+      
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8081:8080
+
+  fastapi:
+    build:
+      context: ./api_traducteur/src
+      dockerfile: Dockerfile
+    container_name: fastapi_trad
+    volumes: 
+      - ./api_traducteur/src:/app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana_trad
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana:/var/lib/grafana
+    depends_on:
+      - db
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus_trad
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus:/prometheus
+    depends_on:
+      - db
+
+volumes:
+  db_data:
+  grafana:
+  prometheus:

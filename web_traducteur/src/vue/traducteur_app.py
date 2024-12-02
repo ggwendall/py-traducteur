@@ -100,9 +100,10 @@ class TraducteurApp:
             if response.status_code == 200:
                 st.success("Voici votre traduction !")
                 response_data = response.json()
-                reponse = f"{response_data['traduction'][0]['translation_text']}"
+                reponse = f"{response_data['traduction']}"
                 st.write(reponse)
             else:
+                st.write(data)
                 st.error(f"Erreur : {response.status_code}")
                 reponse = response.json()
                 st.json(response.json())

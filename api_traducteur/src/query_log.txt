@@ -1,0 +1,1 @@
+INSERT INTO prompts (text_in, text_out, version, utilisateur) VALUES Il est vivant !, [{'translation_text': "He's alive!"}], fr >> en, 1)

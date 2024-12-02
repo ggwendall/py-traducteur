@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 import uvicorn
 
 from config.parametres import VERSIONS
@@ -6,6 +6,9 @@ from model.nlp import traduire
 from model.prompt import Prompt
 from dto.service_traducteur import Service_Traducteur as st
 from model.utilisateur import Utilisateur
+from prometheus_fastapi_instrumentator import Instrumentator
+import time
+from prometheus_client import Counter
 
 
 tags =[
@@ -29,6 +32,25 @@ app = FastAPI(
      version="1.0.0",
      openapi_tags = tags
 )
+
+http_errors = Counter("http_errors", "HTTP errors", ["http_status"])
+
+Instrumentator().instrument(app).expose(app)
+
+@app.middleware("http")
+async def log_request_time(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    duration = time.time() - start_time
+    http_errors.labels(http_status=response.status_code).inc()
+
+    # Appeler la méthode enregistrer_metric pour sauvegarder les métriques
+    try:
+        st.enregistrer_metric(endpoint=request.url.path, method=request.method, duration=duration, status_code=response.status_code)
+    except Exception as e:
+        print(f"Erreur lors de l'enregistrement de la métrique : {e}")
+
+    return response
 
 @app.get("/versions", tags=["index"])
 def versions():
